@@ -31,31 +31,43 @@
                 Stroke="White"
                 StrokeThickness="5"
              />
+            <Image Stretch="None"  x:Name="FinalCroppedImage" Height="80" VerticalAlignment="Bottom" Canvas.Left="499" Canvas.Top="10" Width="135"/>
         </Canvas>
-
+        <TextBlock Height="20" HorizontalAlignment="Left" Name="txtDebug" VerticalAlignment="Top" Width="630" FontSize="16" FontWeight="ExtraBold" Margin="10,0,0,0" />
         <!--Button StackPanel to the right of viewfinder>-->
         <StackPanel Grid.Column="1" >
-            <Button x:Name="AddButton"  Click="ShutterButton_Click" FontSize="26" FontWeight="ExtraBold" Height="100" BorderBrush="{x:Null}">
+            <Button x:Name="AddButton"  Click="ShutterButton_Click" FontSize="26" FontWeight="ExtraBold" Height="99" BorderBrush="{x:Null}">
                 <Button.Background>
                     <ImageBrush Stretch="None" ImageSource="Images/add182.png"/>
                 </Button.Background>
             </Button>
-            <Button x:Name="RecogButton"  Click="ShutterButton_Click" FontSize="26" FontWeight="ExtraBold" Height="100" BorderBrush="{x:Null}" >
+            <Button x:Name="RecogButton"  Click="RecogButton_Click" FontSize="26" FontWeight="ExtraBold" Height="99" BorderBrush="{x:Null}" >
                 <Button.Background>
                     <ImageBrush Stretch="None" ImageSource="Images/eye110.png"/>
                 </Button.Background>
             </Button>
-            <Button x:Name="ShutterButton" Click="ShutterButton_Click" FontSize="26" FontWeight="ExtraBold" Height="100" BorderBrush="{x:Null}" >
+            <Button x:Name="cowsButton" Click="cowsButton_Click" FontSize="26" FontWeight="ExtraBold" Height="99" BorderBrush="{x:Null}" >
+                <Button.Background>
+                    <ImageBrush Stretch="None" ImageSource="Images/cow12.png"/>
+                </Button.Background>
+            </Button>
+            <Button x:Name="ShutterButton" Click="ShutterButton_Click" FontSize="26" FontWeight="ExtraBold" Height="99" BorderBrush="{x:Null}" >
                 <Button.Background>
                     <ImageBrush Stretch="None" ImageSource="Images/camera3.png"/>
                 </Button.Background>
             </Button>
-            <Image Stretch="None"  Name="FinalCroppedImage" Height="100" VerticalAlignment="Bottom"/>
+            <Button x:Name="ConfigurationButton" Click="ConfigurationButton_Click" FontSize="26" FontWeight="ExtraBold" Height="99" BorderBrush="{x:Null}" >
+                <Button.Background>
+                    <ImageBrush Stretch="None" ImageSource="Images/tool418.png"/>
+                </Button.Background>
+            </Button>
+
         </StackPanel>
 
 
         <!--Used for debugging >-->
-        <TextBlock Height="40" HorizontalAlignment="Left" Margin="8,428,0,0" Name="txtDebug" VerticalAlignment="Top" Width="626" FontSize="24" FontWeight="ExtraBold" />
+        <TextBox GotFocus="TextBox_GotFocus" Height="72" Name="numInput" Canvas.Left="118" TextWrapping="Wrap" Canvas.Top="276"  IsReadOnly="False" InputScope="Number" Margin="0,398,0,10" Text="Numero de la vaca" />
+
     </Grid>
 
 

@@ -22,18 +22,9 @@ using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using Microsoft.Xna.Framework;
 
-using System.Net;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Animation;
-using System.Windows.Shapes;
-using Microsoft.Phone.Controls;
-using System.Windows.Media.Imaging;
-using System.IO.IsolatedStorage;
-using System.IO;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using Newtonsoft.Json;
 
 
 namespace Vacapp
@@ -161,9 +152,7 @@ namespace Vacapp
             if (cam != null)
             {
                 // LandscapeRight rotation when camera is on back of phone.
-                int landscapeRightRotation = 180;
-
-                
+                int landscapeRightRotation = 180;                
 
                 // Rotate video brush from camera.
                 if (e.Orientation == PageOrientation.LandscapeRight)
@@ -189,7 +178,7 @@ namespace Vacapp
             {
                 try
                 {
-                    // Start image capture.
+                    // Start image capture.                   
                     cam.CaptureImage();                  
                     
                 }
@@ -212,15 +201,11 @@ namespace Vacapp
 
         // Informs when full resolution picture has been taken, saves to local media library and isolated storage.
         void cam_CaptureImageAvailable(object sender, Microsoft.Devices.ContentReadyEventArgs ce)
-        {
-           
+        {           
             System.Windows.Deployment.Current.Dispatcher.BeginInvoke(() =>
             {
                 var bmp = new WriteableBitmap(0, 0).FromStream(ce.ImageStream);
                 var resized = bmp.Resize(160, 100, WriteableBitmapExtensions.Interpolation.Bilinear);
-
-                
-
                 FinalCroppedImage.Source = resized;
                 double orgWidth = bmp.PixelWidth;
                 double orgHeight = bmp.PixelHeight;
@@ -236,7 +221,7 @@ namespace Vacapp
                 int width = Math.Abs((int) ((Point1.X-Point2.X)*widthRatio));
                 int height = Math.Abs((int) ((Point1.Y-Point2.Y)*heightRatio));
                 var croppedBmp = bmp.Crop(xoffset, yoffset, width, height);
-                croppedBmp.SaveToMediaLibrary("myImage.jpg");
+                croppedBmp.SaveToMediaLibrary("mycroppedd.jpg");
             });
             
             string fileName = savedCounter + ".jpg";
@@ -244,7 +229,7 @@ namespace Vacapp
             {   // Write message to the UI thread.
                 Deployment.Current.Dispatcher.BeginInvoke(delegate()
                 {
-                    txtDebug.Text = "Captured image available, saving picture.";
+                    txtDebug.Text = "Imagen tomada disponible, guardando";
                 });
 
                 // Save picture to the library camera roll.
@@ -253,8 +238,7 @@ namespace Vacapp
                 // Write message to the UI thread.
                 Deployment.Current.Dispatcher.BeginInvoke(delegate()
                 {
-                    txtDebug.Text = "Picture has been saved to camera roll.";
-
+                    txtDebug.Text = "Imagen se guardo al rollo de la camara.";
                 });
 
                 // Set the position of the stream back to start
@@ -276,23 +260,10 @@ namespace Vacapp
                     }
                 }
 
-               
-
-             
-                
-               
-
-          
-               
-
-             
-                
-
                 // Write message to the UI thread.
                 Deployment.Current.Dispatcher.BeginInvoke(delegate()
                 {
-                    txtDebug.Text = "Picture has been saved to isolated storage.";
-
+                    txtDebug.Text = "La imagen se guarado en almacenamiento aislado.";
                 });
             }
             finally
@@ -307,16 +278,9 @@ namespace Vacapp
         // User will select this image in the pictures application to bring up the full-resolution picture. 
         public void cam_CaptureThumbnailAvailable(object sender, ContentReadyEventArgs e)
         {
-            string fileName = savedCounter + "_th.jpg";
-            
-
+            string fileName = savedCounter + "_th.jpg";          
             try
-            {
-                // Write message to UI thread.
-                Deployment.Current.Dispatcher.BeginInvoke(delegate()
-                {
-                    txtDebug.Text = "Captured image available, saving thumbnail.";
-                });
+            {                
 
                 // Save thumbnail as JPEG to isolated storage.
                 using (IsolatedStorageFile isStore = IsolatedStorageFile.GetUserStoreForApplication())
@@ -333,20 +297,55 @@ namespace Vacapp
                             targetStream.Write(readBuffer, 0, bytesRead);
                         }
                     }
-                }
-
-                // Write message to UI thread.
-                Deployment.Current.Dispatcher.BeginInvoke(delegate()
-                {
-                    txtDebug.Text = "Thumbnail has been saved to isolated storage.";
-
-                });
+                }               
             }
             finally
             {
                 // Close image stream
                 e.ImageStream.Close();
             }
+        }
+
+        //Navigate to see individual cow info
+        private void RecogButton_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+            String sCowNumber = numInput.Text;
+            int CowNumber = -1;
+            if(Int32.TryParse(sCowNumber, out CowNumber))
+            {
+                if (BDOperations.getCow(CowNumber) == null)
+                {
+                    MessageBoxResult result = MessageBox.Show("La vaca no existe en el sistema");    
+                }
+                else
+                {
+                    NavigationService.Navigate(new Uri("/seeCow.xaml?numero=" + CowNumber, UriKind.Relative));
+                }
+            }
+            else
+            {
+                MessageBoxResult result = MessageBox.Show("Porfavor digite un numero valido en la casilla");                
+                System.Diagnostics.Debug.WriteLine("pailas");
+            }             
+        }
+
+        //When text input box gets focus delete informational text
+        public void TextBox_GotFocus(object sender, RoutedEventArgs e)
+        {
+            TextBox tb = (TextBox)sender;
+            tb.Text = string.Empty;
+            tb.GotFocus -= TextBox_GotFocus;
+        }
+        
+        //Navigate to See all the cows in the database
+        private void cowsButton_Click(object sender, RoutedEventArgs e)
+        {
+            NavigationService.Navigate(new Uri("/seeCows.xaml", UriKind.Relative));
+        }
+
+        private void ConfigurationButton_Click(object sender, RoutedEventArgs e)
+        {
+
         }
        
     }

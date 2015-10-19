@@ -55,6 +55,13 @@ namespace Vacapp
                 PhoneApplicationService.Current.UserIdleDetectionMode = IdleDetectionMode.Disabled;
             }
 
+            using (CowDataContext context = new CowDataContext(CowDataContext.DBConnectionString))
+            {
+                context.DeleteDatabase();
+                if (!context.DatabaseExists())
+                    context.CreateDatabase();               
+            }
+
         }
 
         // Code to execute when the application is launching (eg, from Start)
