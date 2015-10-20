@@ -19,12 +19,12 @@ namespace Vacapp
         {
             InitializeComponent();
             List<Cow> cows = BDOperations.GetCows();
+            System.Diagnostics.Debug.WriteLine("hay vacas?");
             listBoxCows.ItemsSource = cows;
             foreach (Cow c in cows)
             {
                 System.Diagnostics.Debug.WriteLine(c.nombre);
-                BDOperations.AddCow(c);
-            }  
+            }
         }
 
       
@@ -42,7 +42,7 @@ namespace Vacapp
                     client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
                     HttpResponseMessage response = await client.GetAsync(String.Format(url));
-                    BDOperations.deleteAllCows();
+                    //BDOperations.deleteAllCows();
                     if (response.IsSuccessStatusCode)
                     {
                         var data = response.Content.ReadAsStringAsync();
@@ -51,8 +51,8 @@ namespace Vacapp
                         {
                             //System.Diagnostics.Debug.WriteLine(c.nombre);
                             BDOperations.AddCow(c);
-                        }                            
-                        listBoxCows.ItemsSource = JSONdata.cows;                                            
+                        }
+                        listBoxCows.ItemsSource = BDOperations.GetCows();                                            
 
                     }                    
 

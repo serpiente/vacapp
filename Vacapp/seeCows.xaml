@@ -29,7 +29,7 @@
                     <TextBox x:Name="txtPincode"/>
                     <StackPanel Orientation="Horizontal">
                         <Button x:Name="btnSyncCows" Content="Syncronizar vacas" Click="btnSyncCows_Click" />
-                        <Button x:Name="btnGetData" Content="Buscar vaca" Click="btnGetData_Click" Width="618" />
+                        <Button x:Name="btnGetData" Content="Buscar vaca" Click="btnGetData_Click" Width="543" />
                     </StackPanel>
               
                     <StackPanel>
@@ -38,32 +38,32 @@
                                 <DataTemplate>
                                     <StackPanel Margin="8" >
                                         <StackPanel Orientation="Horizontal" Margin="2">
-                                            <TextBlock Name="numero" Style="{StaticResource PhoneTextNormalStyle}" Text="Numero: "  Margin="2" />
+                                            <TextBlock Name="numero" Style="{StaticResource PhoneTextNormalStyle}" FontWeight="Bold" Text="Numero: "  Margin="2" />
                                             <TextBlock Style="{StaticResource PhoneTextNormalStyle}" Text="{Binding nv}"  Margin="2" />
-                                            <TextBlock Style="{StaticResource PhoneTextNormalStyle}" Text="  Nombre: "  Margin="2" />
+                                            <TextBlock Style="{StaticResource PhoneTextNormalStyle}" FontWeight="Bold" Text="  Nombre: "  Margin="2" />
                                             <TextBlock Style="{StaticResource PhoneTextNormalStyle}" Text="{Binding nombre}"  Margin="2" />                                            
                                         </StackPanel>
                                         <StackPanel Orientation="Horizontal" Margin="2">
-                                            <TextBlock Margin="2" Text="Hato: "> </TextBlock>
+                                            <TextBlock Margin="2" Text="Hato: " FontWeight="Bold"> </TextBlock>
                                             <TextBlock Margin="2" Text="{Binding hato}" />
-                                            <TextBlock Margin="2" Text="   Loc: ">    </TextBlock>
+                                            <TextBlock Margin="2" Text="   Loc: " FontWeight="Bold">    </TextBlock>
                                             <TextBlock Margin="2" Text="{Binding loc}" />
 
 
                                         </StackPanel>
                                         <StackPanel Orientation="Horizontal" Margin="2">
-                                            <TextBlock Margin="2" Text="Dias lactancia: "> </TextBlock>
+                                            <TextBlock Margin="2" Text="Dias lactancia: " FontWeight="Bold"> </TextBlock>
                                             <TextBlock Margin="2" Text="{Binding dias_lac}" />
-                                            <TextBlock Margin="2" Text="   Litros dia lactancia: ">  </TextBlock>
+                                            <TextBlock Margin="2" Text="   Litros dia lactancia: " FontWeight="Bold">  </TextBlock>
                                             <TextBlock Margin="2" Text="{Binding lts_dia}" />                                  
 
                                         </StackPanel>
                                         <StackPanel Orientation="Horizontal" Margin="2">
-                                            <TextBlock Margin="2" Text="# partos: ">  </TextBlock>
+                                            <TextBlock Margin="2" Text="# partos: " FontWeight="Bold">  </TextBlock>
                                             <TextBlock Margin="2" Text="{Binding partos}" />
-                                            <TextBlock Margin="2" Text="  Primer servicio: "/>
+                                            <TextBlock Margin="2" Text="  Primer servicio: " FontWeight="Bold"/>
                                             <TextBlock Margin="2" Text="{Binding primer_servicio}" />
-                                            <TextBlock Margin="2" Text="  Ultimo parto: "/>
+                                            <TextBlock Margin="2" Text="  Ultimo parto:  " FontWeight="Bold"/>
                                             <TextBlock Margin="2" Text="{Binding ultimo_parto}" />                                          
                                         </StackPanel>
                                         <StackPanel Orientation="Horizontal" Margin="2">

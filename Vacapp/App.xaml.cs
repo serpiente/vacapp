@@ -56,8 +56,7 @@ namespace Vacapp
             }
 
             using (CowDataContext context = new CowDataContext(CowDataContext.DBConnectionString))
-            {
-                context.DeleteDatabase();
+            {               
                 if (!context.DatabaseExists())
                     context.CreateDatabase();               
             }
