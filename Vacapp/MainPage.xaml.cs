@@ -25,6 +25,7 @@ using Microsoft.Xna.Framework;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using Newtonsoft.Json;
+using WindowsPreview.Media.Ocr;
 
 
 namespace Vacapp
@@ -32,9 +33,12 @@ namespace Vacapp
     public partial class MainPage : PhoneApplicationPage
     {
         // Variables
-        private int savedCounter = 0;
+        private int CowNumber = 0;
         PhotoCamera cam;
         MediaLibrary library = new MediaLibrary();
+        Microsoft.Devices.ContentReadyEventArgs ce;
+
+        WriteableBitmap bmp;
 
         System.Windows.Point Point1, Point2;
 
@@ -90,10 +94,7 @@ namespace Vacapp
                 }
 
                 // Event is fired when the PhotoCamera object has been initialized.
-                cam.Initialized += new EventHandler<Microsoft.Devices.CameraOperationCompletedEventArgs>(cam_Initialized);
-
-                // Event is fired when the capture sequence is complete.
-                cam.CaptureCompleted += new EventHandler<CameraOperationCompletedEventArgs>(cam_CaptureCompleted);
+                cam.Initialized += new EventHandler<Microsoft.Devices.CameraOperationCompletedEventArgs>(cam_Initialized);               
 
                 // Event is fired when the capture sequence is complete and an image is available.
                 cam.CaptureImageAvailable += new EventHandler<Microsoft.Devices.ContentReadyEventArgs>(cam_CaptureImageAvailable);
@@ -126,8 +127,7 @@ namespace Vacapp
                 cam.Dispose();
 
                 // Release memory, ensure garbage collection.
-                cam.Initialized -= cam_Initialized;
-                cam.CaptureCompleted -= cam_CaptureCompleted;
+                cam.Initialized -= cam_Initialized;           
                 cam.CaptureImageAvailable -= cam_CaptureImageAvailable;
                 cam.CaptureThumbnailAvailable -= cam_CaptureThumbnailAvailable;
             }
@@ -192,19 +192,24 @@ namespace Vacapp
                 }
             }
         }
+   
 
-        void cam_CaptureCompleted(object sender, CameraOperationCompletedEventArgs e)
+        public static byte[] ConvertToByteArray(WriteableBitmap writeableBitmap)
         {
-            // Increments the savedCounter variable used for generating JPEG file names.
-            savedCounter++;
+            using (var ms = new MemoryStream())
+            {
+                writeableBitmap.SaveJpeg(ms, writeableBitmap.PixelWidth, writeableBitmap.PixelHeight, 0, 100);
+                return ms.ToArray();
+            }
         }
 
         // Informs when full resolution picture has been taken, saves to local media library and isolated storage.
         void cam_CaptureImageAvailable(object sender, Microsoft.Devices.ContentReadyEventArgs ce)
-        {           
+        {
+            this.ce = ce;
             System.Windows.Deployment.Current.Dispatcher.BeginInvoke(() =>
             {
-                var bmp = new WriteableBitmap(0, 0).FromStream(ce.ImageStream);
+                bmp = new WriteableBitmap(0, 0).FromStream(ce.ImageStream);
                 var resized = bmp.Resize(160, 100, WriteableBitmapExtensions.Interpolation.Bilinear);
                 FinalCroppedImage.Source = resized;
                 double orgWidth = bmp.PixelWidth;
@@ -221,56 +226,12 @@ namespace Vacapp
                 int width = Math.Abs((int) ((Point1.X-Point2.X)*widthRatio));
                 int height = Math.Abs((int) ((Point1.Y-Point2.Y)*heightRatio));
                 var croppedBmp = bmp.Crop(xoffset, yoffset, width, height);
-                croppedBmp.SaveToMediaLibrary("mycroppedd.jpg");
-            });
-            
-            string fileName = savedCounter + ".jpg";
-            try
-            {   // Write message to the UI thread.
-                Deployment.Current.Dispatcher.BeginInvoke(delegate()
-                {
-                    txtDebug.Text = "Imagen tomada disponible, guardando";
-                });
-
-                // Save picture to the library camera roll.
-                library.SavePictureToCameraRoll(fileName, ce.ImageStream);
-                               
-                // Write message to the UI thread.
-                Deployment.Current.Dispatcher.BeginInvoke(delegate()
-                {
-                    txtDebug.Text = "Imagen se guardo al rollo de la camara.";
-                });
-
-                // Set the position of the stream back to start
-                ce.ImageStream.Seek(0, SeekOrigin.Begin);
+                /*OcrEngine ocrEngine = new OcrEngine(OcrLanguage.English);
+                var ocrResult = ocrEngine.RecognizeAsync((uint)croppedBmp.PixelHeight, (uint)croppedBmp.PixelWidth, ConvertToByteArray(croppedBmp));
+                System.Diagnostics.Debug.WriteLine(ocrResult.GetResults().Lines);*/
                 
-                // Save picture as JPEG to isolated storage.
-                using (IsolatedStorageFile isStore = IsolatedStorageFile.GetUserStoreForApplication())
-                {
-                    using (IsolatedStorageFileStream targetStream = isStore.OpenFile(fileName, FileMode.Create, FileAccess.Write))
-                    {
-                        // Initialize the buffer for 4KB disk pages.
-                        byte[] readBuffer = new byte[4096];
-                        int bytesRead = -1;                 
-                        // Copy the image to isolated storage. 
-                        while ((bytesRead = ce.ImageStream.Read(readBuffer, 0, readBuffer.Length)) > 0)
-                        {
-                            targetStream.Write(readBuffer, 0, bytesRead);
-                        }
-                    }
-                }
-
-                // Write message to the UI thread.
-                Deployment.Current.Dispatcher.BeginInvoke(delegate()
-                {
-                    txtDebug.Text = "La imagen se guarado en almacenamiento aislado.";
-                });
-            }
-            finally
-            {
-                // Close image stream
-                ce.ImageStream.Close();
-            }
+                //croppedBmp.SaveToMediaLibrary("mycroppedd.jpg");
+            });          
 
         }
 
@@ -278,7 +239,7 @@ namespace Vacapp
         // User will select this image in the pictures application to bring up the full-resolution picture. 
         public void cam_CaptureThumbnailAvailable(object sender, ContentReadyEventArgs e)
         {
-            string fileName = savedCounter + "_th.jpg";          
+            string fileName = CowNumber + "_th.jpg";          
             try
             {                
 
@@ -345,8 +306,108 @@ namespace Vacapp
 
         private void ConfigurationButton_Click(object sender, RoutedEventArgs e)
         {
-
+            NavigationService.Navigate(new Uri("/ConfigurationApp.xaml", UriKind.Relative));
         }
+
+        private void addCow_Click(object sender, RoutedEventArgs e)
+        {
+            String sCowNumber = numInput.Text;
+            int CowNumber = -1;
+            if (Int32.TryParse(sCowNumber, out CowNumber))
+            {
+                IsolatedStorageFile myIsolatedStorage = IsolatedStorageFile.GetUserStoreForApplication();
+                string directory = ConfigurationApp.getValue();
+
+                if(directory!=null)
+                {
+                    if (!myIsolatedStorage.DirectoryExists(directory))
+                    {
+                        myIsolatedStorage.CreateDirectory(directory);   //create the folder where the data will be placed
+                    }
+
+                    string fileName = "/" + directory + "/" + CowNumber + ".jpg";
+                    try
+                    {   // Write message to the UI thread.
+                        Deployment.Current.Dispatcher.BeginInvoke(delegate()
+                        {
+                            txtDebug.Text = "Imagen tomada disponible, guardando";
+                        });
+
+                       
+                        var fileStream = new MemoryStream();
+                        using (var isoFile = IsolatedStorageFile.GetUserStoreForApplication())
+                        {
+                            using (var stream = isoFile.CreateFile(fileName))
+                            {
+                                bmp.SaveJpeg(stream, bmp.PixelWidth, bmp.PixelHeight, 100, 100);
+
+                                stream.Seek(0, SeekOrigin.Begin);
+                                var m = new MediaLibrary();
+                                m.SavePictureToCameraRoll(fileName, stream);
+                            }
+                         
+                        }
+                       
+                        //bmp.SaveJpeg(fileStream, bmp.PixelWidth, bmp.PixelHeight, 100, 100);
+                       
+
+                        
+
+                        // Save picture to the library camera roll.
+                        //library.SavePictureToCameraRoll(fileName, ce.ImageStream);
+                      
+
+                        // Write message to the UI thread.
+                        Deployment.Current.Dispatcher.BeginInvoke(delegate()
+                        {
+                            txtDebug.Text = "Imagen se guardo al rollo de la camara.";
+                        });
+
+                        // Set the position of the stream back to start
+                        /*ce.ImageStream.Seek(0, SeekOrigin.Begin);
+
+                        // Save picture as JPEG to isolated storage.
+                        using (IsolatedStorageFile isStore = IsolatedStorageFile.GetUserStoreForApplication())
+                        {
+                            using (IsolatedStorageFileStream targetStream = isStore.OpenFile(fileName, FileMode.Create, FileAccess.Write))
+                            {
+                                // Initialize the buffer for 4KB disk pages.
+                                byte[] readBuffer = new byte[4096];
+                                int bytesRead = -1;
+                                // Copy the image to isolated storage. 
+                                while ((bytesRead = ce.ImageStream.Read(readBuffer, 0, readBuffer.Length)) > 0)
+                                {
+                                    targetStream.Write(readBuffer, 0, bytesRead);
+                                }
+                            }
+                        }*/
+
+                        // Write message to the UI thread.
+                        Deployment.Current.Dispatcher.BeginInvoke(delegate()
+                        {
+                            txtDebug.Text = "La imagen se guarado en almacenamiento aislado.";
+                        });
+                    }
+                    finally
+                    {
+                        // Close image stream
+                        ce.ImageStream.Close();
+                    }
+                }
+                else
+                {
+                    MessageBoxResult result = MessageBox.Show("Porfavor selecione una finca en la configuracion");                  
+                }                    
+            }
+            else
+            {
+                MessageBoxResult result = MessageBox.Show("Porfavor digite un numero valido en la casilla");
+                System.Diagnostics.Debug.WriteLine("pailas");
+            }   
+                
+        }
+
+       
        
     }
 }

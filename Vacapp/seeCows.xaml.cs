@@ -52,26 +52,40 @@ namespace Vacapp
                             //System.Diagnostics.Debug.WriteLine(c.nombre);
                             BDOperations.AddCow(c);
                         }                            
-                        listBoxCows.ItemsSource = JSONdata.cows;
-                     
+                        listBoxCows.ItemsSource = JSONdata.cows;                                            
 
-                       
-
-                    }
-
-                    //pbWeather.Visibility = System.Windows.Visibility.Collapsed;
+                    }                    
 
                 }
             }
             catch (Exception ex)
             {
                 MessageBox.Show("Some Error Occured");
-                //pbWeather.Visibility = System.Windows.Visibility.Collapsed;
             }
         }
 
         private void btnGetData_Click(object sender, RoutedEventArgs e)
         {
+            String sCowNumber = txtPincode.Text;
+            int CowNumber = -1;
+            if (Int32.TryParse(sCowNumber, out CowNumber))
+            {
+                Cow cw = BDOperations.getCow(CowNumber);
+                if(cw!=null)
+                {
+                    List<Cow> cowsToShow = new List<Cow>() { cw };
+                    listBoxCows.ItemsSource = cowsToShow;
+                }
+                else
+                {
+                    MessageBoxResult result = MessageBox.Show("No se encontro ninguna vaca en el sistema con ese numero");
+                }
+              
+            }
+            else
+            {
+                MessageBoxResult result = MessageBox.Show("Porfavor digite un numero valido en la casilla");
+            }
 
         }
     }

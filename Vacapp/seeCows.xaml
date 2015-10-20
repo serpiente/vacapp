@@ -24,12 +24,12 @@
             <StackPanel>
                 <StackPanel>
                     <TextBlock>
-            			<Run Text="Enter Cow Num"/>
+            			<Run Text="Numero de la vaca"/>
                     </TextBlock>
                     <TextBox x:Name="txtPincode"/>
                     <StackPanel Orientation="Horizontal">
-                        <Button x:Name="btnSyncCows" Content="Sync Cows" Click="btnSyncCows_Click" />
-                        <Button x:Name="btnGetData" Content="Get Data" Click="btnGetData_Click" Width="618" />
+                        <Button x:Name="btnSyncCows" Content="Syncronizar vacas" Click="btnSyncCows_Click" />
+                        <Button x:Name="btnGetData" Content="Buscar vaca" Click="btnGetData_Click" Width="618" />
                     </StackPanel>
               
                     <StackPanel>
@@ -38,7 +38,7 @@
                                 <DataTemplate>
                                     <StackPanel Margin="8" >
                                         <StackPanel Orientation="Horizontal" Margin="2">
-                                            <TextBlock Style="{StaticResource PhoneTextNormalStyle}" Text="Numero: "  Margin="2" />
+                                            <TextBlock Name="numero" Style="{StaticResource PhoneTextNormalStyle}" Text="Numero: "  Margin="2" />
                                             <TextBlock Style="{StaticResource PhoneTextNormalStyle}" Text="{Binding nv}"  Margin="2" />
                                             <TextBlock Style="{StaticResource PhoneTextNormalStyle}" Text="  Nombre: "  Margin="2" />
                                             <TextBlock Style="{StaticResource PhoneTextNormalStyle}" Text="{Binding nombre}"  Margin="2" />                                            
