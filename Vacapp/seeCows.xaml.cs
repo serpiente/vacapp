@@ -11,6 +11,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using Newtonsoft.Json;
 
+
 namespace Vacapp
 {
     public partial class seeCows : PhoneApplicationPage
@@ -18,8 +19,7 @@ namespace Vacapp
         public seeCows()
         {
             InitializeComponent();
-            List<Cow> cows = BDOperations.GetCows();
-            System.Diagnostics.Debug.WriteLine("hay vacas?");
+            List<Cow> cows = BDOperations.GetCows();            
             listBoxCows.ItemsSource = cows;
             foreach (Cow c in cows)
             {

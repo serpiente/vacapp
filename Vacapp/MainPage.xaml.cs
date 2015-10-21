@@ -27,6 +27,16 @@ using System.Net.Http.Headers;
 using Newtonsoft.Json;
 using WindowsPreview.Media.Ocr;
 
+//Gdrive
+using System;
+using Google.Apis.Drive.v2;
+using Google.Apis.Auth.OAuth2;
+using System.Threading;
+using Google.Apis.Util.Store;
+using Google.Apis.Services;
+using Google.Apis.Drive.v2.Data;
+using System.Collections.Generic;
+
 
 namespace Vacapp
 {
@@ -141,7 +151,7 @@ namespace Vacapp
                 this.Dispatcher.BeginInvoke(delegate()
                 {
                     // Write message.
-                    txtDebug.Text = "Camera initialized.";
+                    txtDebug.Text = "Camara initializada.";
                 });                                    
             }
         }
@@ -309,6 +319,47 @@ namespace Vacapp
             NavigationService.Navigate(new Uri("/ConfigurationApp.xaml", UriKind.Relative));
         }
 
+        private  void uploadGDrive()
+        {
+            string[] scopes = new string[] { DriveService.Scope.Drive,
+                                 DriveService.Scope.DriveFile};
+            var clientId = "[844644553176-rak6hi8hff4kb6aotchb4mukoacuvptt.apps.googleusercontent.com]";      // From https://console.developers.google.com
+            var clientSecret = "xITZ3Q1Zcn3BWFWmz_PM76pg";          // From https://console.developers.google.com
+            // here is where we Request the user to give us access, or use the Refresh Token that was previously stored in %AppData%
+
+
+            var credential = GoogleWebAuthorizationBroker.AuthorizeAsync(new ClientSecrets
+            {
+                ClientId = clientId,
+                ClientSecret = clientSecret
+            }, scopes,"finca",CancellationToken.None).Result;
+            System.Diagnostics.Debug.WriteLine("sauto");
+            var initializer = new BaseClientService.Initializer()
+            {
+                HttpClientInitializer = credential,
+                ApplicationName = "Assignment 1",
+            };
+            //The authorization works!
+
+            var service = new DriveService(initializer);
+            System.Diagnostics.Debug.WriteLine("into");
+            Google.Apis.Drive.v2.Data.File body = new Google.Apis.Drive.v2.Data.File();
+            body.Title = "My document";
+            body.Description = "A test document";
+            body.MimeType = "image/jpeg";
+
+
+            byte[] byteArray = ConvertToByteArray(bmp);
+            System.IO.MemoryStream stream = new System.IO.MemoryStream(byteArray);
+
+            FilesResource.InsertMediaUpload request = service.Files.Insert(body, stream, "image/jpeg");
+            MessageBox.Show("The code reached here"); // The app shows this message. But can't move to the Upload() line.
+            request.UploadAsync();
+            System.Diagnostics.Debug.WriteLine("upload");
+            MessageBox.Show("Upload completed!");
+        }
+       
+
         private void addCow_Click(object sender, RoutedEventArgs e)
         {
             String sCowNumber = numInput.Text;
@@ -347,6 +398,9 @@ namespace Vacapp
                             }
                          
                         }
+                        System.Diagnostics.Debug.WriteLine("entra?");
+                       // uploadGDrive();
+                        
                        
                         //bmp.SaveJpeg(fileStream, bmp.PixelWidth, bmp.PixelHeight, 100, 100);
                        
